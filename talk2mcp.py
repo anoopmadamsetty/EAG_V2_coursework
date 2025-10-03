@@ -147,7 +147,11 @@ async def main():
                     DO NOT include any explanations or additional text.
                     Your entire response should be a single line starting with either FUNCTION_CALL: or FINAL_ANSWER:"""
 
-                query = """Calculate 2 + 2, then open Preview, draw a rectangle, and write "Hello World!" inside the rectangle."""
+                query = """
+                Open Preview, draw a rectangle, and write "Hello World!". 
+                Also send and email to anoop.madamsetty1610@gmail.com with the subject "MCP testing" with the message
+                "I am sexy and I know it!!"
+                """
                 print("Starting iteration loop...")
                 
                 # Use global iteration variables
@@ -273,32 +277,32 @@ async def main():
 
                     elif response_text.startswith("FINAL_ANSWER:"):
                         print("\n=== Agent Execution Complete ===")
-                        result = await session.call_tool("open_preview")
-                        print(result.content[0].text)
+                        # result = await session.call_tool("open_preview")
+                        # print(result.content[0].text)
+                        #
+                        # # Wait longer for Preview to be fully loaded
+                        # await asyncio.sleep(2)
 
-                        # Wait longer for Preview to be fully loaded
-                        await asyncio.sleep(2)
-
-                        # Draw a rectangle
-                        result = await session.call_tool(
-                            "draw_rectangle",
-                            arguments={
-                                "x1": 250,
-                                "y1": 200,
-                                "x2": 550,
-                                "y2": 300
-                            }
-                        )
-                        print(result.content[0].text)
-
-                        # Add text
-                        result = await session.call_tool(
-                            "add_text_in_preview",
-                            arguments={
-                                "text": response_text
-                            }
-                        )
-                        print(result.content[0].text)
+                        # # Draw a rectangle
+                        # result = await session.call_tool(
+                        #     "draw_rectangle",
+                        #     arguments={
+                        #         "x1": 250,
+                        #         "y1": 200,
+                        #         "x2": 550,
+                        #         "y2": 300
+                        #     }
+                        # )
+                        # print(result.content[0].text)
+                        #
+                        # # Add text
+                        # result = await session.call_tool(
+                        #     "add_text_in_preview",
+                        #     arguments={
+                        #         "text": response_text
+                        #     }
+                        # )
+                        # print(result.content[0].text)
                         break
 
                     iteration += 1

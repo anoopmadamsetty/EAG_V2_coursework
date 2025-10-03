@@ -8,6 +8,14 @@ import math
 import sys
 import subprocess
 import time
+import base64
+import os
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
 
 # instantiate an MCP server client
 mcp = FastMCP("Calculator")
@@ -16,6 +24,31 @@ mcp = FastMCP("Calculator")
 preview_app = None
 current_canvas = None
 temp_file_path = None
+
+# Gmail API setup
+SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+
+def get_gmail_service():
+    """Get authenticated Gmail service"""
+    creds = None
+    # The file token.json stores the user's access and refresh tokens.
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+    
+    service = build('gmail', 'v1', credentials=creds)
+    return service
 
 # DEFINE TOOLS
 
@@ -153,6 +186,45 @@ def fibonacci_numbers(n: int) -> list:
     for _ in range(2, n):
         fib_sequence.append(fib_sequence[-1] + fib_sequence[-2])
     return fib_sequence[:n]
+
+@mcp.tool()
+async def send_email(to_email: str, subject: str, body: str) -> dict:
+    """Send an email via Gmail"""
+    print("CALLED: send_email(to_email: str, subject: str, body: str) -> dict:")
+    try:
+        service = get_gmail_service()
+        
+        # Create message
+        message = MIMEText(body)
+        message['to'] = to_email
+        message['subject'] = subject
+        
+        # Encode message
+        raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+        
+        # Send message
+        result = service.users().messages().send(
+            userId='me',
+            body={'raw': raw_message}
+        ).execute()
+        
+        return {
+            "content": [
+                TextContent(
+                    type="text",
+                    text=f"Email sent successfully to {to_email}. Message ID: {result['id']}"
+                )
+            ]
+        }
+    except Exception as e:
+        return {
+            "content": [
+                TextContent(
+                    type="text",
+                    text=f"Error sending email: {str(e)}"
+                )
+            ]
+        }
 
 
 @mcp.tool()

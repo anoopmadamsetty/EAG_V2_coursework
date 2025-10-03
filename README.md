@@ -15,6 +15,9 @@ This project demonstrates MCP (Model Context Protocol) server implementation wit
 - `draw_rectangle(x1, y1, x2, y2)`: Draws a rectangle in Preview using annotation tools
 - `add_text_in_preview(text)`: Adds text annotations to Preview documents
 
+### Gmail Integration
+- `send_email(to_email, subject, body)`: Send emails via Gmail API
+
 ## Installation
 
 1. Install dependencies:
@@ -22,9 +25,10 @@ This project demonstrates MCP (Model Context Protocol) server implementation wit
 uv sync
 ```
 
-2. Install macOS-specific dependencies:
+2. Set up Gmail API credentials:
 ```bash
-pip install pyobjc-framework-Cocoa pyobjc-framework-Quartz pyobjc-framework-ApplicationServices
+python setup_gmail.py
+# Follow the instructions to create credentials.json
 ```
 
 ## Usage
@@ -37,6 +41,16 @@ python example2.py dev
 ### Testing macOS Preview Automation
 ```bash
 python test_macos_paint.py
+```
+
+### Testing Gmail Integration
+```bash
+# After setting up credentials.json, you can test email sending
+python -c "
+import asyncio
+from example2 import send_email
+asyncio.run(send_email('test@example.com', 'Test Subject', 'Test Body'))
+"
 ```
 
 ## macOS vs Windows Implementation
@@ -64,6 +78,34 @@ The macOS equivalent uses:
 - Python 3.12+
 - Preview application (built into macOS)
 - Accessibility permissions for automation (may be required)
+- Gmail API credentials for email functionality
+
+## Gmail API Setup
+
+1. **Create Google Cloud Project**:
+   - Go to [Google Cloud Console](https://console.developers.google.com/)
+   - Create a new project or select existing one
+
+2. **Enable Gmail API**:
+   - Navigate to "APIs & Services" > "Library"
+   - Search for "Gmail API" and enable it
+
+3. **Create OAuth 2.0 Credentials**:
+   - Go to "APIs & Services" > "Credentials"
+   - Click "Create Credentials" > "OAuth 2.0 Client IDs"
+   - Choose "Desktop application"
+   - Download the JSON file and rename it to `credentials.json`
+
+4. **Place credentials.json in project root**:
+   ```bash
+   # The file should be in the same directory as example2.py
+   ls -la credentials.json
+   ```
+
+5. **First run will open browser for authentication**:
+   - The first time you use `send_email`, it will open a browser window
+   - Sign in to your Google account and authorize the application
+   - A `token.json` file will be created for future use
 
 ## Notes
 
