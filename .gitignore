@@ -8,6 +8,11 @@ wheels/
 
 # Virtual environments
 .venv
-4_mcp_intro/credentials.json
-4_mcp_intro/token.json
-4_mcp_intro/.env
+
+credentials.json
+token.json
+.env
+
+**/credentials.json
+**/token.json
+**/.env
